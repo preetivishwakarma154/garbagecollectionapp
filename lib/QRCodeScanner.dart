@@ -1,5 +1,7 @@
 import 'dart:convert';
+//import 'package:fluttertoast/fluttertoast.dart';
 import 'package:garbage/showUserDetails.dart';
+import 'package:garbage/taost.dart';
 import 'package:get/get.dart';
 
 import 'package:flutter/material.dart';
@@ -17,8 +19,46 @@ class QRCodeScanner extends StatefulWidget {
 
 class _QRCodeScannerState extends State<QRCodeScanner> {
 
+  List<dynamic> datalist = [];
+  String stringdata = '';
+  Future<void> CheckUserID(
+      String id,
+      ) async {
+    try {
+      var headers = {'Content-Type': 'application/json'};
+      var request = http.Request(
+          'POST', Uri.parse('http://192.168.1.110:8000/getcustomerdetails'));
+      request.body = json.encode({"id": id});
+      request.headers.addAll(headers);
+      await Future.delayed(Duration(milliseconds: 1500));
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        data = await response.stream.bytesToString();
+        setState(() {
+          // stringdata = data;
+          datalist = json.decode(data);
+          // print(" user $datalist");
+        });
+        // Data= datalist[0]['username'];
+        //datalist= await response.stream.toString() as List;
+        // print(await response.stream.bytesToString());
+        //print(data);
+        print(datalist);
+      } else {
+        print(response.reasonPhrase);
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
 
   String _id = 'Scan a QR/Bar code';
+  var  snackBar = SnackBar(
+  content: Text(
+  'ID not found'));
   String? collection;
   bool camState = false;
 
@@ -57,9 +97,7 @@ class _QRCodeScannerState extends State<QRCodeScanner> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Garbage Collection App"),
-        ),
+        
         // floatingActionButton: Row(
         //   mainAxisAlignment: MainAxisAlignment.center,
         //   children: [
@@ -93,12 +131,15 @@ class _QRCodeScannerState extends State<QRCodeScanner> {
               qrCodeCallback: (code) {
                 qrCallback(code);
               },
-              child: Text("button"),
+              child: Text(""),
             ),
           ),
-        ) :Navigator(initialRoute: '/',onGenerateRoute: (RouteSettings setting){
+        )
+
+
+    :Navigator(initialRoute: '/',onGenerateRoute: (RouteSettings setting){
           switch(setting.name){
-            case '/':return MaterialPageRoute(builder: (context)=>ShowUserDetails(id: _id.toString(),));
+            case '/':return MaterialPageRoute(builder: (context)=>ShowUserDetails(Id: _id.toString(),));
           }
         },
         ));
@@ -182,3 +223,39 @@ class _QRCodeScannerState extends State<QRCodeScanner> {
 //                 ],
 //               ),
   }}
+// _showToast(String text) {
+//   Widget toast = Container(
+//     padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+//     decoration: BoxDecoration(
+//       borderRadius: BorderRadius.circular(25.0),
+//       color: Colors.green,
+//     ),
+//     child: Row(
+//       children: [
+//         Icon(Icons.check),
+//         SizedBox(
+//           width: 12.0,
+//         ),
+//         Text(text),
+//       ],
+//     ),
+//   );
+//
+//   fToast.showToast(
+//     child: toast,
+//     gravity: ToastGravity.BOTTOM,
+//     toastDuration: Duration(seconds: 1),
+//   );
+//
+//   // Custom Toast Position
+//   // fToast.showToast(
+//   //     child: toast,
+//   //     toastDuration: Duration(seconds: 1),
+//   //     positionedToastBuilder: (context, child) {
+//   //       return Positioned(
+//   //         child: child,
+//   //         top: 136.0,
+//   //         left: 116.0,
+//   //       );
+//   //     });
+// }

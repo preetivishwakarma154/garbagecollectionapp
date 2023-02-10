@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: Colors.white,
       body: Center(
         child: Container(
-          child:Image.asset("assets/garbagecollection_logo.png"),
+          child:Image.asset("assets/logo.png"),
         ),
       ));
 

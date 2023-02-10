@@ -1,41 +1,40 @@
 import 'dart:convert';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 // import 'package:fluttertoast/fluttertoast.dart';
 import 'package:garbage/scanEntry.dart';
 import 'package:garbage/taost.dart';
-import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import 'Login.dart';
 
-class ShowUserDetails extends StatefulWidget {
-  ShowUserDetails({required this.Id});
+class ManualShowUserDetails extends StatefulWidget {
+  ManualShowUserDetails({required this.Id});
   final String Id;
 
   @override
-  State<ShowUserDetails> createState() => _ShowUserDetailsState();
+  State<ManualShowUserDetails> createState() => _ManualShowUserDetailsState();
 }
 
 var data;
 
 var username, wardno, propertyno, propertyTy;
 
-class _ShowUserDetailsState extends State<ShowUserDetails> {
-  Map mapResponse = Map();
+class _ManualShowUserDetailsState extends State<ManualShowUserDetails> {
 
-  Map<String,dynamic> datalist = Map();
+
+  Map<String, dynamic> datalist = Map();
 
   var index = 0;
 
   Future<void> AddCollection(
-    String customerid,
-    String collectorid,
-    String date,
-    String collected,
-    String reason,
-  ) async {
+      String customerid,
+      String collectorid,
+      String date,
+      String collected,
+      String reason,
+      ) async {
     try {
       var headers = {'Content-Type': 'application/json'};
       var request = http.Request(
@@ -53,8 +52,7 @@ class _ShowUserDetailsState extends State<ShowUserDetails> {
       http.StreamedResponse response = await request.send();
 
       if (response.statusCode == 200) {
-        data=(await response.stream.bytesToString());
-        print("++++++++++++++++++++++++++$data");
+        print(await response.stream.bytesToString());
 
         // Data= datalist[0]['username'];
         //datalist= await response.stream.toString() as List;
@@ -71,26 +69,25 @@ class _ShowUserDetailsState extends State<ShowUserDetails> {
 
   String stringdata = '';
   Future<void> QRCode(
-    String id,
-  ) async  {
+      String id,
+      ) async {
     try {
       var headers = {'Content-Type': 'application/json'};
       var request = http.Request(
           'POST', Uri.parse('http://192.168.1.110:8000/getcustomerdetails'));
       request.body = json.encode({"id": id});
       request.headers.addAll(headers);
-
-      http.StreamedResponse response = await request.send();
       await Future.delayed(Duration(milliseconds: 1500));
 
+      http.StreamedResponse response = await request.send();
+
       if (response.statusCode == 200) {
-        data = await  response.stream.bytesToString();
+        data = await response.stream.bytesToString();
         setState(() {
           // stringdata = data;
           datalist = json.decode(data);
           // print(" user $datalist");
         });
-
         // Data= datalist[0]['username'];
         //datalist= await response.stream.toString() as List;
         // print(await response.stream.bytesToString());
@@ -102,12 +99,6 @@ class _ShowUserDetailsState extends State<ShowUserDetails> {
     } catch (e) {
       print(e.toString());
     }
-  }
-  callme() async {
-    await Future.delayed(Duration(seconds: 3));
-    QRCode(widget.Id).then((value) => {
-
-    });
   }
 
   // Future apicall(
@@ -174,7 +165,6 @@ class _ShowUserDetailsState extends State<ShowUserDetails> {
 //     }
 //   }
 
-
   List<String> OptionList = [
     "कचरा पृथक पृथक नहीं किया गया",
     "इंतज़ार करने के पश्चात भी कचरा नहीं दिया गया",
@@ -191,12 +181,11 @@ class _ShowUserDetailsState extends State<ShowUserDetails> {
   @override
   void initState() {
     super.initState();
-  // QRCode(widget.Id);
-    callme();
+    QRCode(widget.Id);
     setState(() {
       //   Data= datalist[0]['username'];
 
-    //  QRCode(widget.Id);
+      QRCode(widget.Id);
     });
 
     WidgetsBinding.instance
@@ -207,19 +196,17 @@ class _ShowUserDetailsState extends State<ShowUserDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
         body:Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if(datalist.isEmpty)...[
-
               Center(child: LoadingAnimationWidget.discreteCircle(color: Color(0xff074d58), size: 150))
             ]else if(datalist['Status']==false)...[
               Center(
                 child: AlertDialog(
                     title: const Text("Alert Box!"),
-                    content: const Text("Invalid QR Code"),
+                    content: const Text("Id not found"),
                     actions: <Widget>[
                       TextButton(
                           onPressed: () {
@@ -405,13 +392,12 @@ class _ShowUserDetailsState extends State<ShowUserDetails> {
                                 ScaffoldMessenger.of(context)
                                     .showSnackBar(snackBar);
                               } else {
-                                Center(child: LoadingAnimationWidget.discreteCircle(color: Color(0xff074d58), size: 150));
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => ScanEntry()),
                                 );
-                               // _showToast("Details submitted successfully");
+                              //  _showToast("Details submitted successfully");
                               }
 
                               print(collection);
@@ -430,18 +416,19 @@ class _ShowUserDetailsState extends State<ShowUserDetails> {
                             )),
                       ),
                     ),
-                    SizedBox(height: 100,)
+                    SizedBox(
+                      height: 100,
+                    )
                   ],
                 ),
               )
             ]
           ],
 
-        ),
+        )
 
 
-
-    );
+             );
   }
 }
 

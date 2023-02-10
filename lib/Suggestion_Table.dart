@@ -1,55 +1,79 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-class SearchBarScreen extends StatefulWidget {
-  const SearchBarScreen({Key? key}) : super(key: key);
+import 'Modal/SuggestionModal.dart';
+
+class SuggestionShowTable extends StatefulWidget {
+  SuggestionShowTable(
+    this.url,
+    this.FirstTitle,
+    this.SecondTitle,
+    this.ThirdTitle,
+    this.FourthTitle,
+    this.FifthTitle,
+    this.SixthTitle,
+    this.FirstData,
+    this.SecondData,
+    this.ThirdData,
+    this.FourthData,
+    this.FifthData,
+    this.SixthData,
+  );
+  final String url;
+  final String FirstTitle,
+      SecondTitle,
+      ThirdTitle,
+      FourthTitle,
+      FifthTitle,
+      SixthTitle;
+
+  final String FirstData,
+      ThirdData,
+      SecondData,
+      FourthData,
+      FifthData,
+      SixthData;
 
   @override
-  State<SearchBarScreen> createState() => _SearchBarScreenState();
+  State<SuggestionShowTable> createState() => _SuggestionShowTableState();
 }
 
-class _SearchBarScreenState extends State<SearchBarScreen> {
-  List postList = [];
+List postList = [];
+
+class _SuggestionShowTableState extends State<SuggestionShowTable> {
   Future<List> getpostApi() async {
     final response = await http
-        .get(Uri.parse("http://192.168.0.103:8000/getcomplaintreport"));
+        .get(Uri.parse(widget.url));
     postList = await (jsonDecode(response.body.toString()));
 
     if (response.statusCode == 200) {
       setState(() {
         //  _foundUsers=postList;
       });
-      print(postList);
+
       return postList;
     } else {
       return postList;
     }
   }
 
-  // This list holds the data for the list view
-
-
   @override
-  initState() {
+  void initState() {
     getpostApi();
-    print("  state $postList");
-    _foundUsers = postList;
-
     setState(() {
-      _foundUsers = postList;
-      print(" set state $_foundUsers");
+      getpostApi();
     });
-
-    // at the beginning, all users are shown
-
     super.initState();
   }
+
   List _foundUsers = [];
 
   List results = [];
   bool check = false;
+
   // This function is called whenever the text field changes
   _runFilter(String enteredKeyword) {
     results = [];
@@ -62,12 +86,13 @@ class _SearchBarScreenState extends State<SearchBarScreen> {
     } else {
       results = postList
           .where((user) =>
-              user['complaint_id']
-                  .toString()
+              user[widget.FifthData]
+                  .toLowerCase()
                   .contains(enteredKeyword.toLowerCase()) ||
-               user['date'].toString().contains(enteredKeyword.toLowerCase())
-
-      )
+              user[widget.SecondData]
+                  .toString()
+                  .contains(enteredKeyword.toLowerCase())
+              )
           .toList();
       print("Results $results");
 
@@ -91,6 +116,8 @@ class _SearchBarScreenState extends State<SearchBarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final _verticalScrollController = ScrollController();
+    final _horizontalScrollController = ScrollController();
     return Scaffold(
         body: SafeArea(
       child: ListView(
@@ -103,7 +130,7 @@ class _SearchBarScreenState extends State<SearchBarScreen> {
                 decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(
                         vertical: 10.0, horizontal: 15),
-                    hintText: "Search",
+                    hintText: "Search by Name or Ward Number",
                     suffixIcon: const Icon(Icons.search),
                     // prefix: Icon(Icons.search),
                     border: OutlineInputBorder(
@@ -119,7 +146,7 @@ class _SearchBarScreenState extends State<SearchBarScreen> {
                   future: getpostApi(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
-                      return Text("Loading ...");
+                      return Center(child: LoadingAnimationWidget.discreteCircle(color: Color(0xff074d58), size: 150));
                     } else {
                       return Container(
                         height: MediaQuery.of(context).size.height,
@@ -140,94 +167,77 @@ class _SearchBarScreenState extends State<SearchBarScreen> {
                                             "SNO",
                                             style: TextStyle(
                                                 fontSize: 18,
-                                                fontWeight: FontWeight.bold),
+
+                                                fontWeight: FontWeight.bold,
+                                                color:   Color(0xff05535f)),
                                           )),
                                           DataColumn(
-                                              label: Text("widget.FirstTitle",
+                                              label: Text(widget.FirstTitle,
                                                   style: TextStyle(
                                                       fontSize: 18,
                                                       fontWeight:
-                                                          FontWeight.bold))),
+                                                          FontWeight.bold,
+                                                      color:   Color(0xff05535f)))),
                                           DataColumn(
-                                              label: Text("feild",
+                                              label: Text(widget.SecondTitle,
                                                   style: TextStyle(
                                                       fontSize: 18,
                                                       fontWeight:
-                                                          FontWeight.bold))),
+                                                          FontWeight.bold,
+                                                      color:   Color(0xff05535f)))),
                                           DataColumn(
-                                              label: Text("widget.ThirdTitle",
+                                              label: Text(widget.ThirdTitle,
                                                   style: TextStyle(
                                                       fontSize: 18,
                                                       fontWeight:
-                                                          FontWeight.bold))),
-                                          DataColumn(
-                                              label: Text(
-                                                  "widget.FourthTitle"
-                                                      .toString(),
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold))),
+                                                          FontWeight.bold,
+                                                      color:   Color(0xff05535f)))),
                                           DataColumn(
                                               label: Text(
-                                                  "widget.FourthTitle"
-                                                      .toString(),
+                                                  widget.FourthTitle.toString(),
                                                   style: TextStyle(
                                                       fontSize: 18,
                                                       fontWeight:
-                                                      FontWeight.bold))),
+                                                          FontWeight.bold,
+                                                      color:   Color(0xff05535f)),
+                                              )),
                                           DataColumn(
                                               label: Text(
-                                                  "widget.FourthTitle"
-                                                      .toString(),
+                                                  widget.FifthTitle.toString(),
                                                   style: TextStyle(
                                                       fontSize: 18,
                                                       fontWeight:
-                                                      FontWeight.bold))),
+                                                      FontWeight.bold,
+                                                      color:   Color(0xff05535f)))),
                                           DataColumn(
                                               label: Text(
-                                                  "widget.FourthTitle"
-                                                      .toString(),
+                                                  widget.SixthTitle.toString(),
                                                   style: TextStyle(
                                                       fontSize: 18,
                                                       fontWeight:
-                                                      FontWeight.bold))),
-                                          DataColumn(
-                                              label: Text(
-                                                  "widget.FourthTitle"
-                                                      .toString(),
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                      FontWeight.bold))),
+                                                      FontWeight.bold,
+                                                      color:   Color(0xff05535f)))),
                                         ],
                                         columnSpacing: 40,
                                         horizontalMargin: 40,
-                                        rows: List.generate(postList.length,
-                                            (index) {
+                                        rows: List.generate(
+                                            snapshot.data!.length, (index) {
                                           final u = snapshot.data![index]
-                                                  ['complaint_id']
-                                              .toString();
-                                          final v = snapshot.data![index]
-                                          ['customerid']
+                                                  [widget.FirstData]
                                               .toString();
 
+                                          final v = snapshot.data![index]
+                                                  [widget.SecondData]
+                                              .toString();
                                           final w = snapshot.data![index]
-                                                  ['complaint_type']
+                                                  [widget.ThirdData]
                                               .toString();
                                           final x = snapshot.data![index]
-                                                  ['date']
+                                                  [widget.FourthData].toString();
+
+                                          final y = snapshot.data![index][widget.FifthData]
                                               .toString();
-                                          final y = snapshot.data![index]
-                                                  ['username']
-                                              .toString();
-                                          final z = snapshot.data![index]
-                                          ['ward_no']
-                                              .toString();
-                                          final a = snapshot.data![index]
-                                          ['property_no']
-                                              .toString();
-                                          final b = snapshot.data![index]['complaint']
+                                          final z = snapshot.data![index][widget.SixthData]
                                               .toString();
                                           final num = index + 1;
                                           return DataRow(cells: [
@@ -251,12 +261,6 @@ class _SearchBarScreenState extends State<SearchBarScreen> {
                                             ),
                                             DataCell(
                                               Text(z),
-                                            ),
-                                            DataCell(
-                                              Text(a),
-                                            ),
-                                            DataCell(
-                                              Text(b),
                                             ),
                                           ]);
                                         }),
@@ -300,59 +304,40 @@ class _SearchBarScreenState extends State<SearchBarScreen> {
                                                 fontWeight: FontWeight.bold),
                                           )),
                                           DataColumn(
-                                              label: Text("widget.FirstTitle",
+                                              label: Text(widget.FirstTitle,
                                                   style: TextStyle(
                                                       fontSize: 18,
                                                       fontWeight:
                                                           FontWeight.bold))),
                                           DataColumn(
-                                              label: Text("feild",
+                                              label: Text(widget.SecondTitle,
                                                   style: TextStyle(
                                                       fontSize: 18,
                                                       fontWeight:
                                                           FontWeight.bold))),
                                           DataColumn(
-                                              label: Text("widget.ThirdTitle",
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold))),
-                                          DataColumn(
-                                              label: Text(
-                                                  "widget.FourthTitle"
-                                                      .toString(),
+                                              label: Text(widget.ThirdTitle,
                                                   style: TextStyle(
                                                       fontSize: 18,
                                                       fontWeight:
                                                           FontWeight.bold))),
                                           DataColumn(
                                               label: Text(
-                                                  "widget.FourthTitle"
-                                                      .toString(),
+                                                  widget.FourthTitle.toString(),
+                                                  style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.bold))),
+                                          DataColumn(
+                                              label: Text(
+                                                  widget.FifthTitle.toString(),
                                                   style: TextStyle(
                                                       fontSize: 18,
                                                       fontWeight:
                                                       FontWeight.bold))),
                                           DataColumn(
                                               label: Text(
-                                                  "widget.FourthTitle"
-                                                      .toString(),
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                      FontWeight.bold))),
-                                          DataColumn(
-                                              label: Text(
-                                                  "widget.FourthTitle"
-                                                      .toString(),
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                      FontWeight.bold))),
-                                          DataColumn(
-                                              label: Text(
-                                                  "widget.FourthTitle"
-                                                      .toString(),
+                                                  widget.SixthTitle.toString(),
                                                   style: TextStyle(
                                                       fontSize: 18,
                                                       fontWeight:
@@ -363,27 +348,23 @@ class _SearchBarScreenState extends State<SearchBarScreen> {
                                         rows: List.generate(_foundUsers.length,
                                             (index) {
                                           final u = _foundUsers[index]
-                                                  ['complaint_id']
+                                                  [widget.FirstData]
                                               .toString();
 
                                           final v = _foundUsers[index]
-                                                  ['complaint_type']
+                                                  [widget.SecondData]
                                               .toString();
                                           final w = _foundUsers[index]
-                                                  ['complaint']
+                                                  [widget.ThirdData]
                                               .toString();
-                                          final x = _foundUsers[index]['date']
+                                          final x = _foundUsers[index]
+                                                  [widget.FourthData]
                                               .toString();
                                           final y = _foundUsers[index]
-                                          ['username']
+                                          [widget.FifthData]
                                               .toString();
-                                          final z = _foundUsers![index]
-                                          ['ward_no']
-                                              .toString();
-                                          final a = _foundUsers[index]
-                                          ['property_no']
-                                              .toString();
-                                          final b = _foundUsers[index]['complaint']
+                                          final z = _foundUsers[index]
+                                          [widget.SixthData]
                                               .toString();
                                           final num = index + 1;
                                           return DataRow(cells: [
@@ -407,12 +388,6 @@ class _SearchBarScreenState extends State<SearchBarScreen> {
                                             ),
                                             DataCell(
                                               Text(z),
-                                            ),
-                                            DataCell(
-                                              Text(a),
-                                            ),
-                                            DataCell(
-                                              Text(b),
                                             ),
                                           ]);
                                         }),
